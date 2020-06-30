@@ -3,3 +3,4 @@ vendor/
 public/callback.txt
 .env
 composer.lock
+.idea/
