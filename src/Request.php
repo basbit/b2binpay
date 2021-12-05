@@ -50,7 +50,7 @@ class Request
         $header = [
             'Authorization' => 'Bearer ' . $token,
             'Content-Type' => 'application/vnd.api+json',
-            'Idempotency-Key' => Uuid::uuid4()
+            'Idempotency-Key' => (string)Uuid::uuid4()
         ];
 
         $request = [
@@ -60,7 +60,7 @@ class Request
         ];
 
         if (null !== $data) {
-            $request[RequestOptions::JSON] = ['data' => $data::toArrayWithSnakeKeys()];
+            $request[RequestOptions::JSON] = ['data' => $data->toArrayWithSnakeKeys()];
         }
 
         return $this->execute($method, $url, $request);
@@ -77,12 +77,12 @@ class Request
             'Content-Type' => 'application/vnd.api+json'
         ];
 
-        $data = DataItemDto::setFromParams("auth-token", $tokenDto::toArrayWithSnakeKeys());
+        $data = DataItemDto::setFromParams("auth-token", $tokenDto->toArrayWithSnakeKeys());
         $request = [
             RequestOptions::VERIFY => false,
             RequestOptions::HEADERS => $header,
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::JSON => ['data' => $data::toArrayWithSnakeKeys()],
+            RequestOptions::JSON => ['data' => $data->toArrayWithSnakeKeys()],
         ];
 
         $method = 'POST';

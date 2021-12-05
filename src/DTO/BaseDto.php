@@ -15,7 +15,7 @@ class BaseDto
         self::$instance = $this;
 
         if (is_object($values) && method_exists($values, 'toArray')) {
-            $values = $values::toArray();
+            $values = $values->toArray();
         }
 
         if (is_array($values)) {
@@ -83,11 +83,11 @@ class BaseDto
         return $value;
     }
 
-    public static function toArray(bool $isRecursive = true): array
+    public function toArray(bool $isRecursive = true): array
     {
         $result = [];
 
-        foreach (get_object_vars(self::$instance) as $propertyName => $propertyValue) {
+        foreach (get_object_vars($this) as $propertyName => $propertyValue) {
             if (is_null($propertyValue) || (is_array($propertyValue) && !$propertyValue)) {
                 continue;
             }
@@ -102,16 +102,16 @@ class BaseDto
         return self::cutCommonData($result);
     }
 
-    public static function toJson(): string
+    public function toJson(): string
     {
-        return json_encode(self::toArray());
+        return json_encode($this->toArray());
     }
 
-    public static function toArrayWithSnakeKeys(bool $isRecursive = true): array
+    public function toArrayWithSnakeKeys(bool $isRecursive = true): array
     {
         $result = [];
 
-        foreach (get_object_vars(self::$instance) as $propertyName => $propertyValue) {
+        foreach (get_object_vars($this) as $propertyName => $propertyValue) {
             if (is_null($propertyValue) || (is_array($propertyValue) && !$propertyValue)) {
                 continue;
             }

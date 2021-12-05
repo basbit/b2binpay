@@ -1,5 +1,7 @@
 <?php
 
+namespace B2Binpay\Enum;
+
 class AddressType
 {
     public const BTC_LEGACY = 'legacy';

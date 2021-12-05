@@ -8,9 +8,13 @@ class ServerApiException extends B2BinpayException
     {
         $message = [];
         foreach ($errors as $error) {
-            $message[] = 'Code: '. $error->code . ', Details: ' . $error->detail;
+            $sources = null;
+            if (isset($error['source'])) {
+                $sources = implode(', ', $error['source']);
+            }
+            $message[] = 'Code: ' . ($error['code'] ?? null) . ', Details: ' . ($error['detail'] ?? null) . ' ' . $sources;
         }
 
-        parent::__construct("Server returned $status status with error: ". implode(', ', $message));
+        parent::__construct("Server returned $status status with error: " . implode(', ', $message));
     }
 }

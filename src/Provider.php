@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace B2Binpay;
 
-use AddressType;
 use B2Binpay\DTO\DataItemDto;
 use B2Binpay\DTO\MetaDto;
 use B2Binpay\DTO\RelationshipItemDto;
@@ -22,6 +21,7 @@ use B2Binpay\DTO\Response\RateDto;
 use B2Binpay\DTO\Response\TransferDto;
 use B2Binpay\DTO\Response\WalletDto;
 use B2Binpay\DTO\ResponseDto;
+use B2Binpay\Enum\AddressType;
 use B2Binpay\Exception\IncorrectRatesException;
 use B2Binpay\Exception\UpdateTokenException;
 use B2Binpay\Exception\WrongCurrencyException;
@@ -232,26 +232,30 @@ class Provider
     }
 
     public function createDeposit(
-        int $walletId,
-        int $currencyIso,
+        int $wallet,
+        string $currency,
         string $label,
         string $trackingId,
         ?int $confirmationsNeeded = 3
     ): DepositResponseDto {
-        if (!isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$currencyIso])) {
+
+        $iso = $this->currency->getIso($currency);
+
+        if (!isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso])) {
             throw new WrongCurrencyException();
         }
 
-        $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$currencyIso];
+        $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso];
 
         $url = $this->getEndpoint(self::URI_DEPOSIT);
         $deposit = new DepositRequestDto($label, $trackingId, $confirmationsNeeded, $addressType, $this->callbackUrl);
         $relationships = new RelationshipsDto();
-        $relationships->wallet = new RelationshipItemDto($walletId, 'wallet');
+        $relationships->wallet = new RelationshipItemDto($wallet, 'wallet');
+
         $data = DataItemDto::setFromParams(
             "deposit",
-            $deposit::toArrayWithSnakeKeys(),
-            $relationships::toArrayWithSnakeKeys(),
+            $deposit->toArrayWithSnakeKeys(),
+            $relationships->toArrayWithSnakeKeys(),
         );
         $response = $this->sendRequest('post', $url, $data);
 
@@ -264,27 +268,29 @@ class Provider
     }
 
     public function createInvoice(
-        int $walletId,
-        int $currencyIso,
+        string $wallet,
+        string $currency,
         string $label,
         string $trackingId,
         ?int $confirmationsNeeded = 3
     ): DepositResponseDto {
-        if (!isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$currencyIso])) {
+        $iso = $this->currency->getIso($currency);
+
+        if (!isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso])) {
             throw new WrongCurrencyException();
         }
 
-        $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$currencyIso];
+        $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso];
 
         $url = $this->getEndpoint(self::URI_DEPOSIT);
         $deposit = new DepositRequestDto($label, $trackingId, $confirmationsNeeded, $addressType, $this->callbackUrl);
         $relationships = new RelationshipsDto();
-        $relationships->wallet = new RelationshipItemDto($walletId, 'wallet');
-        $relationships->currency = new RelationshipItemDto($currencyIso, 'currency');
+        $relationships->wallet = new RelationshipItemDto($wallet, 'wallet');
+        $relationships->currency = new RelationshipItemDto($iso, 'currency');
         $data = DataItemDto::setFromParams(
             "deposit",
-            $deposit::toArrayWithSnakeKeys(),
-            $relationships::toArrayWithSnakeKeys(),
+            $deposit->toArrayWithSnakeKeys(),
+            $relationships->toArrayWithSnakeKeys(),
         );
         $response = $this->sendRequest('post', $url, $data);
 
@@ -346,8 +352,8 @@ class Provider
         $relationships->wallet = new RelationshipItemDto($walletId, 'wallet');
         $data = DataItemDto::setFromParams(
             "payout",
-            $deposit::toArrayWithSnakeKeys(),
-            $relationships::toArrayWithSnakeKeys()
+            $deposit->toArrayWithSnakeKeys(),
+            $relationships->toArrayWithSnakeKeys()
         );
         $response = $this->sendRequest('post', $url, $data);
 
@@ -366,8 +372,8 @@ class Provider
         $relationships->currency = new RelationshipItemDto($currencyIso, 'currency');
         $data = DataItemDto::setFromParams(
             "payout-calculation",
-            $calculateFeeDto::toArrayWithSnakeKeys(),
-            $relationships::toArrayWithSnakeKeys()
+            $calculateFeeDto->toArrayWithSnakeKeys(),
+            $relationships->toArrayWithSnakeKeys()
         );
         $response = $this->sendRequest('post', $url, $data);
 

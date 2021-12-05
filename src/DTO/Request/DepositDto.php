@@ -12,8 +12,13 @@ class DepositDto extends BaseDto
     public string $callbackUrl;
     public string $addressType;
 
-    public function __construct(string $label, string $trackingId, int $confirmationsNeeded, string $addressType, string $callbackUrl)
-    {
+    public function __construct(
+        string $label,
+        string $trackingId,
+        int $confirmationsNeeded,
+        string $addressType,
+        string $callbackUrl
+    ) {
         parent::__construct(
             [
                 'label' => $label,
