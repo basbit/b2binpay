@@ -1,0 +1,13 @@
+language: php
+install: composer install
+
+php:
+  - '7.4'
+  - '8.0'
+  - '8.1'
+
+before_script:
+  - mkdir -p build/logs
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls

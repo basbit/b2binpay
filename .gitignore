@@ -1,0 +1,13 @@
+.idea
+build/
+vendor/
+.env
+.env.example
+LICENSE
+/.phpunit.cache
+.phpunit.result.cache
+# composer
+composer.phar
+composer.lock
+tests
+examples
