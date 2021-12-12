@@ -6,6 +6,8 @@ use B2Binpay\DTO\BaseDto;
 
 class DepositDto extends BaseDto
 {
+    public ?int $id;
+    public ?string $type;
     public ?string $label;
     public ?float $targetPaid;
     public ?string $paymentPage;
@@ -17,4 +19,5 @@ class DepositDto extends BaseDto
     public ?string $message;
     public ?array $destination;
     public ?array $assets;
+    public ?TransferDto $transfer;
 }

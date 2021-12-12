@@ -4,12 +4,12 @@ namespace B2Binpay\DTO;
 
 class DataItemDto extends BaseDto
 {
-    protected ?int $id;
-    protected string $type;
-    protected ?array $links;
-    protected ?array $included;
-    protected ?array $attributes;
-    protected ?array $relationships;
+    public ?int $id;
+    public string $type;
+    public ?array $links;
+    public ?array $included;
+    public ?array $attributes;
+    public ?array $relationships;
 
     public static function setFromParams(
         string $type,
@@ -36,5 +36,10 @@ class DataItemDto extends BaseDto
     public function getAttributes(): ?array
     {
         return $this->attributes;
+    }
+
+    public function getRelationships(): ?array
+    {
+        return $this->relationships;
     }
 }

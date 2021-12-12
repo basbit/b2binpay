@@ -62,7 +62,6 @@ class Provider
     public function __construct(
         string $authKey,
         string $authSecret,
-        string $callbackUrl,
         bool $testing = false,
         Currency $currency = null,
         AmountFactory $amountFactory = null
@@ -71,9 +70,13 @@ class Provider
         $this->amountFactory = $amountFactory ?? new AmountFactory($this->currency);
         $this->authKey = $authKey;
         $this->authSecret = $authSecret;
-        $this->callbackUrl = $callbackUrl;
         $this->request = new Request();
         $this->testing = $testing;
+    }
+
+    public function setCallbackUrl(string $callbackUrl): void
+    {
+        $this->callbackUrl = $callbackUrl;
     }
 
     public function getAccessToken(): string
@@ -205,7 +208,16 @@ class Provider
     {
         $response = $this->sendRequest('get', $this->getEndpoint(self::URI_WALLETS . '/' . $walletId));
 
-        return new WalletDto($response->getData()[0]->getAttributes());
+        /** @var DataItemDto $data */
+        $data = $response->getData()[0];
+        $wallet = new WalletDto($data->getAttributes());
+        $wallet->id = $data->id;
+        if(isset($data->getRelationships()['currency'])) {
+            $relationship = $data->getRelationships()['currency']['data'];
+            $wallet->currency = new RelationshipItemDto($relationship['id'], $relationship['type']);
+        }
+
+        return $wallet;
     }
 
     public function getCurrency(int $iso): CurrencyDto
@@ -251,6 +263,7 @@ class Provider
         $deposit = new DepositRequestDto($label, $trackingId, $confirmationsNeeded, $addressType, $this->callbackUrl);
         $relationships = new RelationshipsDto();
         $relationships->wallet = new RelationshipItemDto($wallet, 'wallet');
+        $relationships->currency = new RelationshipItemDto($iso, 'currency');
 
         $data = DataItemDto::setFromParams(
             "deposit",
@@ -294,23 +307,28 @@ class Provider
         );
         $response = $this->sendRequest('post', $url, $data);
 
-        return new DepositResponseDto($response->getData()[0]->getAttributes());
+        $responseData = $response->getData()[0];
+
+        $responseDto = new DepositResponseDto($responseData->getAttributes());
+        $responseDto->id = $responseData->id;
+        return $responseDto;
     }
 
     public function processDepositCallback(array $responseData): DepositResponseDto
     {
         $depositDto = new DepositResponseDto($responseData['data']['attributes']);
-
+        $depositDto->id = $responseData['data']['id'];
+        $depositDto->type = $responseData['data']['type'];
         $meta = new MetaDto($responseData['meta']);
 
-        $transferData = array_filter(
+        $transferData = current(array_filter(
             $responseData['included'],
             function ($item) {
                 return $item['type'] === 'transfer';
             }
-        );
+        ));
         $transferDto = new TransferDto($transferData['attributes']);
-
+        $depositDto->transfer = $transferDto;
         $message = $transferDto->status . $transferDto->amount . $depositDto->trackingId . $meta->time;
 
         $this->request->checkSign($meta->sign, $message, $this->authKey, $this->authSecret);
