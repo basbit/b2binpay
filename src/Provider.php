@@ -317,19 +317,24 @@ class Provider
     public function processDepositCallback(array $responseData): DepositResponseDto
     {
         $depositDto = new DepositResponseDto($responseData['data']['attributes']);
-        $depositDto->id = $responseData['data']['id'];
+        $depositDto->id = (int)$responseData['data']['id'];
         $depositDto->type = $responseData['data']['type'];
         $meta = new MetaDto($responseData['meta']);
 
-        $transferData = current(array_filter(
-            $responseData['included'],
-            function ($item) {
-                return $item['type'] === 'transfer';
+        foreach ($responseData['included'] as $included) {
+            switch ($included['type']) {
+                case 'currency':
+                    $currencyDto = new CurrencyDto($included['attributes']);
+                    $depositDto->currency = $currencyDto;
+                    break;
+                case 'transfer':
+                    $transferDto = new TransferDto($included['attributes']);
+                    $depositDto->transfer = $transferDto;
+                    break;
             }
-        ));
-        $transferDto = new TransferDto($transferData['attributes']);
-        $depositDto->transfer = $transferDto;
-        $message = $transferDto->status . $transferDto->amount . $depositDto->trackingId . $meta->time;
+        }
+
+        $message = $depositDto->transfer->status . $depositDto->transfer->amount . $depositDto->trackingId . $meta->time;
 
         $this->request->checkSign($meta->sign, $message, $this->authKey, $this->authSecret);
 

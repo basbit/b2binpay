@@ -20,4 +20,5 @@ class DepositDto extends BaseDto
     public ?array $destination;
     public ?array $assets;
     public ?TransferDto $transfer;
+    public ?CurrencyDto $currency;
 }
