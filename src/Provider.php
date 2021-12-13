@@ -240,7 +240,11 @@ class Provider
         $url = $this->getEndpoint(self::URI_DEPOSIT . '/' . $depositId);
         $response = $this->sendRequest('get', $url);
 
-        return new DepositResponseDto($response->getData()[0]->getAttributes());
+        $responseData = $response->getData()[0];
+        $responseDto = new DepositResponseDto($responseData->getAttributes());
+        $responseDto->id = $responseData->id;
+
+        return $responseDto;
     }
 
     public function createDeposit(
@@ -272,7 +276,11 @@ class Provider
         );
         $response = $this->sendRequest('post', $url, $data);
 
-        return new DepositResponseDto($response->getData()[0]->getAttributes());
+        $responseData = $response->getData()[0];
+        $responseDto = new DepositResponseDto($responseData->getAttributes());
+        $responseDto->id = $responseData->id;
+
+        return $responseDto;
     }
 
     public function getInvoice(int $depositId): DepositResponseDto
