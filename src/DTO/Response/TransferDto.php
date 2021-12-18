@@ -13,9 +13,9 @@ class TransferDto extends BaseDto
     public int $opType;
     public int $riskStatus;
     public int $risk;
-    public float $amount;
-    public float $commission;
-    public float $fee;
+    public string $amount;
+    public string $commission;
+    public string $fee;
     public string $txid;
     public int $status;
     public string $message;
