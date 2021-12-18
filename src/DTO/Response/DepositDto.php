@@ -14,9 +14,10 @@ class DepositDto extends BaseDto
     public ?string $addressType;
     public ?string $trackingId;
     public ?int $confirmationsNeeded;
+    public ?int $status = null;
     public ?string $callbackUrl;
     public ?string $address;
-    public ?string $message;
+    public ?string $message = null;
     public ?array $destination;
     public ?array $assets;
     public ?TransferDto $transfer;
