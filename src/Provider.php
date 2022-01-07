@@ -297,11 +297,10 @@ class Provider
     ): DepositResponseDto {
         $iso = $this->currency->getIso($currency);
 
-        if (!isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso])) {
-            throw new WrongCurrencyException();
+        $addressType = AddressType::LEGACY;
+        if (isset(AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso])) {
+            $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso];
         }
-
-        $addressType = AddressType::DEFAULT_ADDRESSES_BY_ISO[$iso];
 
         $url = $this->getEndpoint(self::URI_DEPOSIT);
         $deposit = new DepositRequestDto($label, $trackingId, $confirmationsNeeded, $addressType, $this->callbackUrl);
