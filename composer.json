@@ -9,7 +9,7 @@
         "ext-mbstring": "*",
         "litipk/php-bignumbers": "^0.8",
         "guzzlehttp/guzzle": "^7",
-        "vlucas/phpdotenv": "^4",
+        "vlucas/phpdotenv": "^5",
         "ramsey/uuid": "^4.2"
     },
     "require-dev": {
